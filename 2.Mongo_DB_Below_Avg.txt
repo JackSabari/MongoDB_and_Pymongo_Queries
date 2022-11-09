@@ -1,0 +1,33 @@
+2) Find students who scored below average in the exam and pass mark is 40%?
+
+
+working query :
+~~~~~~~~~~~~
+
+db.grades.aggregate([ 
+{$unwind:{path:"$scores"}},
+{ 
+$group :{
+"_id": "$scores.type",
+average:{$avg:"$scores.score"}}},
+ { $out : { db: "student", coll: "performances" } }
+])
+
+db.grades.aggregate( [{ $unwind:{path:"$scores"} }, 
+{$match: {"scores.type" :"exam"}},
+{$lookup:
+{
+  from: "performances",
+  let: { type: "$scores.type",score:"$scores.score" },
+  pipeline: [
+  { $match:
+  { $expr:
+  { $and:[{ $eq: [ "$_id",  "$$type" ] },{ $lt: [  "$$score","$average" ] }]}}},
+{ $project: { name: 1, _id: 1 } }
+],
+as: "belowAvg"
+}
+},
+{ $project:{   Below_Average:{$ne: ["$belowAvg", [] ] } ,_id:1,name:1}},
+{$match :{"Below_Average":true}}])
+
