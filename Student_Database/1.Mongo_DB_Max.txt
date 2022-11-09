@@ -1,0 +1,32 @@
+1) Find the student name who scored maximum scores in all (exam, quiz and homework)?
+
+
+working query :
+~~~~~~~~~~~~~~
+db.grades.aggregate([
+    {$unwind:{ path:"$scores"}},
+    {$match:{"scores.type" :"exam"}},
+    {$sort:{"scores.score":-1}} ,
+    {$limit:1}
+    ])
+
+    db.grades.aggregate([
+    {$unwind:{ path:"$scores"}},
+    {$match:{"scores.type" :"quiz"}},
+    {$sort:{"scores.score":-1}} ,
+    {$limit:1}
+    ])
+
+    db.grades.aggregate([
+    {$unwind:{ path:"$scores"}},
+    {$match:{"scores.type" :"homework"}},
+    {$sort:{"scores.score":-1}} ,
+    {$limit:1}
+    ])
+
+Without Name:
+~~~~~~~~~~~~
+db.grades.aggregate([
+{$unwind:{path:"$scores"}},
+{$group: {_id:"$scores.type",Max_value:{$max:"$scores.score"}}}
+])

@@ -1,0 +1,24 @@
+4) Find the total and average of the exam, quiz and homework and store them in a separate collection.
+
+
+Working_Query:
+~~~~~~~~~~~~~
+
+db.grades.aggregate([
+    {$unwind:{ path:"$scores"}},
+    {
+       $group:{
+          _id:"$scores.type",
+          Total:{$sum:"$scores.score"},
+          average:{$avg:"$scores.score"}}
+    },
+   {
+   $project:{
+    "Type":"$_id",
+    _id:0,
+     Total:1,
+     average:1
+    }},
+   { $out : { db: "student", coll: "performance" } }
+ ])
+
